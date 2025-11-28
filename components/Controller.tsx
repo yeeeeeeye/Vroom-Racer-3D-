@@ -113,16 +113,17 @@ export const Controller: React.FC<ControllerProps> = ({ onUpdate, onReady }) => 
           const distTip = Math.hypot(tip.x - wrist.x, tip.y - wrist.y);
           const distMcp = Math.hypot(mcp.x - wrist.x, mcp.y - wrist.y);
           
-          if (distTip < distMcp * 1.3) {
+          // Relaxed threshold: 1.3 -> 1.6
+          // This allows looser fists (fingertips further from wrist) to still count
+          if (distTip < distMcp * 1.6) {
               curledCount++;
           }
       }
       // Thumb check (simple)
       const thumbTip = landmarks[4];
-      const thumbIp = landmarks[3];
       const thumbMcp = landmarks[2];
-      // If tip is close to MCP/IP
-      if(Math.hypot(thumbTip.x - thumbMcp.x, thumbTip.y - thumbMcp.y) < 0.15) curledCount++;
+      // Relaxed threshold: 0.15 -> 0.25 (Allows thumb to be less tightly tucked)
+      if(Math.hypot(thumbTip.x - thumbMcp.x, thumbTip.y - thumbMcp.y) < 0.25) curledCount++;
 
       return curledCount >= 3;
   };
@@ -196,7 +197,7 @@ export const Controller: React.FC<ControllerProps> = ({ onUpdate, onReady }) => 
                     const hand1 = results.landmarks[0];
                     const hand2 = results.landmarks[1];
 
-                    // 1. Detect Fists
+                    // 1. Detect Gestures
                     const fist1 = isFist(hand1);
                     const fist2 = isFist(hand2);
                     fistsClenched = fist1 && fist2;

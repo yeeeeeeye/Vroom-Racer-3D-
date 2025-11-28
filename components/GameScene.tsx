@@ -3,6 +3,30 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { PerspectiveCamera, Stars, Line } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Fix for missing R3F types in this environment
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      group: any;
+      mesh: any;
+      cylinderGeometry: any;
+      primitive: any;
+      meshBasicMaterial: any;
+      boxGeometry: any;
+      capsuleGeometry: any;
+      meshStandardMaterial: any;
+      icosahedronGeometry: any;
+      coneGeometry: any;
+      sphereGeometry: any;
+      pointLight: any;
+      ambientLight: any;
+      directionalLight: any;
+      fog: any;
+      planeGeometry: any;
+    }
+  }
+}
+
 interface GameSceneProps {
   speed: number;
   steering: number;
@@ -129,9 +153,16 @@ const PineappleMesh = () => {
                          <meshStandardMaterial color="#15803d" />
                     </mesh>
                 ))}
-                {/* Outer Ring */}
+                {/* Middle Ring */}
                 {[0, 1, 2, 3, 4].map(i => (
-                    <mesh key={`out-${i}`} rotation={[0.4, i * (Math.PI*2/5), 0]} position={[0, 0.2, 0]}>
+                    <mesh key={`mid-${i}`} rotation={[0.2, i * (Math.PI*2/5), 0]} position={[0, 0.25, 0]}>
+                         <coneGeometry args={[0.15, 0.7, 3]} />
+                         <meshStandardMaterial color="#16a34a" />
+                    </mesh>
+                ))}
+                {/* Outer Ring */}
+                {[0, 1, 2, 3, 4, 5].map(i => (
+                    <mesh key={`out-${i}`} rotation={[0.5, i * (Math.PI*2/6), 0]} position={[0, 0.2, 0]}>
                         <coneGeometry args={[0.15, 0.6, 3]} />
                         <meshStandardMaterial color="#166534" />
                     </mesh>
@@ -219,7 +250,7 @@ const Items = ({ speed, worldXRef, onScore, onCrash }: {
             id: i, 
             type: 'light', 
             x: 0, 
-            z: -500 - (i * 10), 
+            z: -50 - (i * 10), // START MUCH CLOSER (was -500)
             active: false,
             scaleVar: 1 
         }));
@@ -235,8 +266,7 @@ const Items = ({ speed, worldXRef, onScore, onCrash }: {
         if (Math.abs(speed) > 1) {
              const available = items.find(i => !i.active);
              
-             // Reduced spawn chance for density control
-             if(available && Math.random() < 0.15) { // Was 0.2
+             if(available && Math.random() < 0.15) { 
                 available.active = true;
                 const r = Math.random();
                 
@@ -247,12 +277,12 @@ const Items = ({ speed, worldXRef, onScore, onCrash }: {
                     const side = Math.random() > 0.5 ? 1 : -1;
                     const offset = 22 + Math.random() * 40;
                     available.x = side * offset;
-                } else if (r < 0.98) { 
-                    // Light - Scattered on Road
-                    // Reduced spawn frequency implicitly by lowering total spawn chance
+                } else if (r < 0.92) { 
+                    // Light (42% Chance)
                     available.type = 'light';
                     available.x = (Math.random() - 0.5) * 30; 
-                } else { // 2% chance Pineapple
+                } else { 
+                    // Pineapple (8% Chance - Was 2%, increased 4x)
                     available.type = 'pineapple';
                     available.x = (Math.random() - 0.5) * 20;
                 }
