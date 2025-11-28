@@ -1,0 +1,8 @@
+{
+  "name": "Voom Racer 3D",
+  "description": "An interactive racing game controlled by voice volume and hand gestures. Make 'Voom' sounds to accelerate and tilt your hand to steer.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
